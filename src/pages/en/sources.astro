@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Sources and method" description="How Humans on Mars checks facts, labels plans and scenarios, and which sources the tools use.">
+  <section class="prose-wrap">
+    <article class="prose">
+      <p class="eyebrow">Method</p>
+      <h1 class="display-sm">Sources and method</h1>
+      <h2>Four editorial states</h2>
+      <table>
+        <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="label-status">Fact</span></td><td>Backed by published evidence, with the source linked.</td></tr>
+          <tr><td><span class="label-status">Plan</span></td><td>An intention announced by an organisation, attributed with its date. Not a demonstrated capability.</td></tr>
+          <tr><td><span class="label-status">Model</span></td><td>A calculation whose inputs and assumptions are shown.</td></tr>
+          <tr><td><span class="label-status">Scenario</span></td><td>An imagined scene to help you picture daily life, labelled as creative.</td></tr>
+        </tbody>
+      </table>
+      <h2>How we check</h2>
+      <p>
+        We rely on NASA, JPL, ESA, mission teams, company primary material and peer-reviewed research. News reports and social posts
+        are leads, not evidence. AI tools help with drafting and code review, but an AI answer is never cited as a source; a person
+        opens the primary source before anything is published.
+      </p>
+      <h2>Sources used by the tools</h2>
+      <ul>
+        <li><a href="https://science.nasa.gov/mars/facts/">NASA: Mars facts</a></li>
+        <li><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/weight-equation-2/">NASA Glenn: the weight equation</a></li>
+        <li><a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html">NASA JPL: approximate positions of the planets</a></li>
+        <li><a href="https://www.giss.nasa.gov/tools/mars24/help/algorithm.html">NASA GISS: Mars24 algorithm</a></li>
+      </ul>
+    </article>
+  </section>
+</Base>

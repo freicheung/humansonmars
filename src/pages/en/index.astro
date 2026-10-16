@@ -1,0 +1,115 @@
+---
+import Base from '../../layouts/Base.astro';
+import SpaceBackdrop from '../../components/SpaceBackdrop.astro';
+import { earthMarsDistanceKm } from '../../lib/ephemeris';
+import { lightDelay, formatDuration } from '../../lib/delay';
+
+// Build-time values keep the page meaningful without JavaScript; the script refreshes them.
+const builtAt = new Date();
+const km = earthMarsDistanceKm(builtAt);
+const oneWay = lightDelay(km).oneWaySeconds;
+---
+
+<Base
+  title="Humans on Mars"
+  description="What would everyday life on Mars feel like? Interactive tools and sourced explainers on time, gravity, distance and living on another world."
+  mode="immersive"
+>
+  <section class="panel" aria-labelledby="hero-title">
+    <SpaceBackdrop variant="rise" seed={11} />
+    <div class="panel-content">
+      <p class="eyebrow">A guide to life on another world</p>
+      <h1 class="display" id="hero-title">Humans<br />on Mars</h1>
+      <p class="lede">
+        Mars is <strong><span data-live="km-short">{(km / 1e6).toFixed(1)}</span> million km</strong> from Earth right now. What would
+        it take, and what would it feel like, to live there?
+      </p>
+      <a class="btn btn-accent" href="#tools">Explore the tools</a>
+    </div>
+    <span class="scroll-cue">Scroll</span>
+  </section>
+
+  <section class="panel" aria-labelledby="delay-title">
+    <SpaceBackdrop variant="span" seed={23} />
+    <div class="panel-content">
+      <p class="eyebrow">Calling home</p>
+      <p class="figure-live" data-live="delay">{formatDuration(oneWay)}</p>
+      <h2 class="display-sm" id="delay-title">For a message to reach Earth today</h2>
+      <p class="lede">Light is the speed limit. A conversation with family becomes an exchange of letters.</p>
+      <a class="btn" href="/en/tools/message-delay/">Send a message</a>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="gravity-title">
+    <SpaceBackdrop variant="horizon" seed={5} />
+    <div class="panel-content">
+      <p class="eyebrow">Gravity</p>
+      <p class="figure-live">38<span class="figure-unit">%</span></p>
+      <h2 class="display-sm" id="gravity-title">Of the pull you feel on Earth</h2>
+      <p class="lede">Your mass stays the same. Every step, lift and fall would feel different.</p>
+      <a class="btn" href="/en/tools/mars-gravity/">Weigh yourself on Mars</a>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="age-title">
+    <SpaceBackdrop variant="orbits" seed={41} />
+    <div class="panel-content">
+      <p class="eyebrow">Time</p>
+      <p class="figure-live">687<span class="figure-unit">Earth days</span></p>
+      <h2 class="display-sm" id="age-title">In one Martian year</h2>
+      <p class="lede">Birthdays come roughly every 23 months. How old would you be?</p>
+      <a class="btn" href="/en/tools/mars-age/">Find your Mars age</a>
+    </div>
+  </section>
+
+  <section id="tools" class="prose-wrap" aria-labelledby="tools-title">
+    <div style="max-width:var(--max);margin:0 auto">
+      <p class="eyebrow">Start here</p>
+      <h2 class="display-sm" id="tools-title">Three ways to imagine Mars</h2>
+      <div class="tiles">
+        <a class="tile" href="/en/tools/mars-gravity/">
+          <p class="eyebrow" style="margin:0">Tool 01</p>
+          <h3>Mars gravity</h3>
+          <p>Enter your mass and see the force you would feel on the Martian surface.</p>
+          <span class="go">Open tool →</span>
+        </a>
+        <a class="tile" href="/en/tools/message-delay/">
+          <p class="eyebrow" style="margin:0">Tool 02</p>
+          <h3>Message to Earth</h3>
+          <p>Today's Earth–Mars distance and how long your words would travel.</p>
+          <span class="go">Open tool →</span>
+        </a>
+        <a class="tile" href="/en/tools/mars-age/">
+          <p class="eyebrow" style="margin:0">Tool 03</p>
+          <h3>Your Mars age</h3>
+          <p>Your age in Martian years and sols, and the date of your next Mars birthday.</p>
+          <span class="go">Open tool →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="prose-wrap" aria-labelledby="method-title" style="border-top:1px solid var(--line)">
+    <div class="prose">
+      <p class="eyebrow">How we write</p>
+      <h2 id="method-title" style="margin-top:0">Facts, plans, models and scenes</h2>
+      <p>
+        Every page separates four things: <strong>facts</strong> backed by evidence, <strong>plans</strong> attributed to whoever
+        announced them, <strong>models</strong> that show their inputs, and <strong>imagined scenes</strong> labelled as such.
+        No countdowns to a migration date that nobody has demonstrated.
+      </p>
+      <p><a href="/en/sources/">Read our sources and method →</a></p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { earthMarsDistanceKm } from '../../lib/ephemeris';
+  import { lightDelay, formatDuration } from '../../lib/delay';
+
+  const km = earthMarsDistanceKm(new Date());
+  const short = document.querySelector('[data-live="km-short"]');
+  const delay = document.querySelector('[data-live="delay"]');
+  if (short) short.textContent = (km / 1e6).toFixed(1);
+  if (delay) delay.textContent = formatDuration(lightDelay(km).oneWaySeconds);
+</script>

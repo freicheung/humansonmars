@@ -1,0 +1,23 @@
+---
+const path = Astro.url.pathname;
+const links = [
+  { href: '/en/tools/mars-gravity/', label: 'Gravity' },
+  { href: '/en/tools/message-delay/', label: 'Message delay' },
+  { href: '/en/tools/mars-age/', label: 'Mars age' },
+  { href: '/en/about/', label: 'About' },
+];
+---
+
+<header class="site-header">
+  <a class="brand" href="/en/">Humans on Mars</a>
+  <nav class="site-nav" aria-label="Main">
+    {
+      links.map((l) => (
+        <a href={l.href} class="desk" aria-current={path === l.href ? 'page' : undefined}>
+          {l.label}
+        </a>
+      ))
+    }
+    <a href="/en/#tools" class="mobile">Tools</a>
+  </nav>
+</header>

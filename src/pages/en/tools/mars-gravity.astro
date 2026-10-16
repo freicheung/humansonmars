@@ -1,0 +1,140 @@
+---
+import Base from '../../../layouts/Base.astro';
+import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { MARS_SURFACE_GRAVITY, STANDARD_GRAVITY } from '../../../lib/constants';
+---
+
+<Base
+  title="Mars gravity calculator: what you would weigh on Mars"
+  description="Enter your mass in kg or lb to see the gravitational force on Mars in newtons and what an Earth scale would read. Your mass does not change."
+  mode="immersive"
+>
+  <section class="panel tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="horizon" seed={9} />
+    <div class="tool-grid">
+      <div>
+        <p class="eyebrow">Tool 01 · Gravity</p>
+        <h1 class="display-sm" id="tool-title">What would you weigh on Mars?</h1>
+        <p class="lede">
+          Mars pulls on you with about 38% of Earth's gravity. Your body keeps exactly the same mass; only the force changes.
+        </p>
+      </div>
+
+      <form class="tool-card" id="gravity-form" novalidate>
+        <div class="field">
+          <label for="mass">Your mass</label>
+          <div class="input-row">
+            <input id="mass" name="mass" type="number" inputmode="decimal" min="0" step="any" value="70" required aria-describedby="mass-error" />
+            <div class="segmented" role="group" aria-label="Unit">
+              <button type="button" data-unit="kg" aria-pressed="true">kg</button>
+              <button type="button" data-unit="lb" aria-pressed="false">lb</button>
+            </div>
+          </div>
+          <p class="error" id="mass-error" role="alert"></p>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <dl class="result-grid">
+            <div><dt>Force on Mars</dt><dd><span data-out="mars-n">259.7</span> N</dd></div>
+            <div><dt>Earth scale would read</dt><dd><span data-out="scale">26.5</span> <span data-out="unit">kg</span></dd></div>
+            <div><dt>Your mass</dt><dd><span data-out="mass">70</span> <span data-out="unit">kg</span></dd></div>
+          </dl>
+          <p class="note">
+            On Earth the same body feels <span data-out="earth-n">686.5</span> N. A bathroom scale calibrated for Earth would show the
+            lower number on Mars, but your mass is unchanged.
+          </p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="prose-wrap">
+    <article class="prose">
+      <h2>Weight is a force, mass is not</h2>
+      <p>
+        Your <strong>mass</strong> is how much matter you are made of, measured in kilograms. Your <strong>weight</strong> is the
+        force gravity exerts on that mass, measured in newtons. On Mars the matter stays the same, so your mass stays the same. The
+        force drops because Mars is smaller and less massive than Earth.
+      </p>
+
+      <h2>How the calculation works</h2>
+      <p class="formula">force (N) = mass (kg) × g</p>
+      <table>
+        <thead><tr><th>Constant</th><th>Value used</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Mars surface gravity</td><td>{MARS_SURFACE_GRAVITY} m/s² (approximate, varies slightly by location)</td><td><span class="label-status">Fact</span></td></tr>
+          <tr><td>Standard Earth gravity</td><td>{STANDARD_GRAVITY} m/s²</td><td><span class="label-status">Fact</span></td></tr>
+        </tbody>
+      </table>
+      <p>
+        The "Earth scale would read" figure divides the Martian force by standard Earth gravity. That is what a scale calibrated on
+        Earth would display. Example: 70 kg gives 259.7 N on Mars, which an Earth scale would show as about 26.48 kg.
+      </p>
+
+      <h2>What this tool does not tell you</h2>
+      <p>
+        It does not predict how high you could jump, how your bones or muscles would change, or how athletes would perform. Those
+        depend on biology, suits and habitat design, and are open research questions.
+      </p>
+      <p>
+        Your input stays in your browser. Nothing you type is sent or stored.
+      </p>
+
+      <h2>Sources</h2>
+      <ul>
+        <li><a href="https://science.nasa.gov/mars/facts/">NASA: Mars facts</a></li>
+        <li><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/weight-equation-2/">NASA Glenn: the weight equation</a></li>
+      </ul>
+    </article>
+  </section>
+</Base>
+
+<script>
+  import { marsGravity, parseMass, type MassUnit } from '../../../lib/gravity';
+  import { LB_TO_KG } from '../../../lib/constants';
+
+  const form = document.getElementById('gravity-form') as HTMLFormElement;
+  const input = document.getElementById('mass') as HTMLInputElement;
+  const error = document.getElementById('mass-error')!;
+  const unitButtons = form.querySelectorAll<HTMLButtonElement>('[data-unit]');
+  let unit: MassUnit = 'kg';
+
+  const out = (key: string, value: string) =>
+    form.querySelectorAll(`[data-out="${key}"]`).forEach((el) => (el.textContent = value));
+
+  function update() {
+    try {
+      const kg = parseMass(input.value, unit);
+      const r = marsGravity(kg);
+      const display = (k: number) => (unit === 'lb' ? k / LB_TO_KG : k);
+      error.textContent = '';
+      input.removeAttribute('aria-invalid');
+      out('mars-n', r.marsForceN.toFixed(1));
+      out('earth-n', r.earthForceN.toFixed(1));
+      out('scale', display(r.earthScaleEquivalentKg).toFixed(1));
+      out('mass', display(r.massKg).toFixed(1).replace(/\.0$/, ''));
+      out('unit', unit);
+      document.dispatchEvent(new CustomEvent('tool:complete', { detail: { tool: 'mars-gravity' } }));
+    } catch {
+      error.textContent = 'Enter a positive number.';
+      input.setAttribute('aria-invalid', 'true');
+    }
+  }
+
+  unitButtons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.unit as MassUnit;
+      if (next === unit) return;
+      const v = Number(input.value);
+      if (Number.isFinite(v) && v > 0) input.value = (next === 'lb' ? v / LB_TO_KG : v * LB_TO_KG).toFixed(1);
+      unit = next;
+      unitButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      update();
+    }),
+  );
+  input.addEventListener('input', update);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    update();
+  });
+</script>

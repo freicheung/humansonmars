@@ -1,0 +1,109 @@
+---
+import Base from '../../../layouts/Base.astro';
+import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { MARS_YEAR_EARTH_DAYS, SOL_SECONDS } from '../../../lib/constants';
+---
+
+<Base
+  title="Mars age calculator: how old are you on Mars?"
+  description="Enter your birth date to see your age in Martian years and sols, and the date of your next Mars birthday."
+  mode="immersive"
+>
+  <section class="panel tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="orbits" seed={43} />
+    <div class="tool-grid">
+      <div>
+        <p class="eyebrow">Tool 03 · Time</p>
+        <h1 class="display-sm" id="tool-title">How old are you on Mars?</h1>
+        <p class="lede">
+          Mars takes 687 Earth days to circle the Sun. Count your life in Martian years and you get younger, with fewer, rarer
+          birthdays.
+        </p>
+      </div>
+
+      <form class="tool-card" id="age-form" novalidate>
+        <div class="field">
+          <label for="birth">Your birth date</label>
+          <input id="birth" type="date" value="2000-01-01" min="1900-01-01" required aria-describedby="age-error" />
+          <p class="error" id="age-error" role="alert"></p>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <dl class="result-grid">
+            <div><dt>Mars age</dt><dd><span data-out="years">—</span> <span style="font-size:.5em">years</span></dd></div>
+            <div><dt>Sols lived</dt><dd data-out="sols">—</dd></div>
+            <div><dt>Next Mars birthday</dt><dd data-out="next" style="font-size:22px">—</dd></div>
+          </dl>
+          <p class="note">
+            Your birth date stays in your browser. Nothing is sent or stored.
+          </p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="prose-wrap">
+    <article class="prose">
+      <h2>How the calculation works</h2>
+      <p class="formula">Mars age = days since birth ÷ {MARS_YEAR_EARTH_DAYS}<br />sols = seconds since birth ÷ {SOL_SECONDS}</p>
+      <table>
+        <thead><tr><th>Quantity</th><th>Value used</th></tr></thead>
+        <tbody>
+          <tr><td>One Mars year (orbital period)</td><td>{MARS_YEAR_EARTH_DAYS} Earth days</td></tr>
+          <tr><td>One sol (mean Martian solar day)</td><td>{SOL_SECONDS} seconds, about 24 h 39 min 35 s</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Your next Mars birthday is the moment your count of Martian years reaches the next whole number. The date is shown in UTC,
+        counting from midnight on your birth date.
+      </p>
+
+      <h2>Years and seasons on Mars</h2>
+      <p>
+        A Martian year is nearly twice as long as ours, so each season lasts roughly twice as long. Because Mars's orbit is more
+        elliptical than Earth's, its seasons are also uneven in length. Scientists number Mars years starting from 1955, a
+        convention used to compare dust storm seasons over time.
+      </p>
+
+      <h2>Sources</h2>
+      <ul>
+        <li><a href="https://science.nasa.gov/mars/facts/">NASA: Mars facts</a></li>
+        <li><a href="https://www.giss.nasa.gov/tools/mars24/help/algorithm.html">NASA GISS: Mars24 algorithm and time conventions</a></li>
+      </ul>
+    </article>
+  </section>
+</Base>
+
+<script>
+  import { marsAge, parseBirthDate } from '../../../lib/marsAge';
+
+  const form = document.getElementById('age-form') as HTMLFormElement;
+  const input = document.getElementById('birth') as HTMLInputElement;
+  const error = document.getElementById('age-error')!;
+  const fmt = new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' });
+
+  const out = (key: string, value: string) =>
+    form.querySelectorAll(`[data-out="${key}"]`).forEach((el) => (el.textContent = value));
+
+  function update() {
+    try {
+      const r = marsAge(parseBirthDate(input.value), new Date());
+      error.textContent = '';
+      input.removeAttribute('aria-invalid');
+      out('years', r.marsYears.toFixed(2));
+      out('sols', Math.floor(r.sols).toLocaleString('en'));
+      out('next', fmt.format(r.nextMarsBirthday));
+      document.dispatchEvent(new CustomEvent('tool:complete', { detail: { tool: 'mars-age' } }));
+    } catch (e) {
+      error.textContent = e instanceof RangeError ? e.message : 'Enter a valid date.';
+      input.setAttribute('aria-invalid', 'true');
+    }
+  }
+
+  input.addEventListener('input', update);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    update();
+  });
+  update();
+</script>

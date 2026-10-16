@@ -1,0 +1,192 @@
+---
+import Base from '../../../layouts/Base.astro';
+import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { earthMarsDistanceKm } from '../../../lib/ephemeris';
+import { lightDelay, formatDuration } from '../../../lib/delay';
+
+const now = new Date();
+const km = earthMarsDistanceKm(now);
+const d = lightDelay(km);
+const today = now.toISOString().slice(0, 10);
+---
+
+<Base
+  title="Earth–Mars communication delay: how long a message takes"
+  description="See today's approximate Earth–Mars distance and how long a radio message takes one way and round trip, or pick any date or distance."
+  mode="immersive"
+>
+  <section class="panel tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="span" seed={31} />
+    <div class="tool-grid">
+      <div>
+        <p class="eyebrow">Tool 02 · Communication</p>
+        <h1 class="display-sm" id="tool-title">Send a message to Earth</h1>
+        <p class="lede">
+          Radio travels at the speed of light, yet a hello from Mars takes minutes to arrive. The wait changes every day as both
+          planets move.
+        </p>
+      </div>
+
+      <form class="tool-card" id="delay-form" novalidate>
+        <div class="field">
+          <span class="field-label" style="font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted)">Distance from</span>
+          <div class="segmented" role="group" aria-label="Distance source">
+            <button type="button" data-mode="date" aria-pressed="true">A date</button>
+            <button type="button" data-mode="custom" aria-pressed="false">My own distance</button>
+          </div>
+        </div>
+
+        <div class="field" data-panel="date">
+          <label for="date">Date (UTC)</label>
+          <input id="date" type="date" value={today} min="1900-01-01" max="2050-12-31" aria-describedby="delay-error" />
+        </div>
+
+        <div class="field" data-panel="custom" hidden>
+          <label for="distance">Distance: <span data-out="slider">225</span> million km</label>
+          <input id="distance" type="range" min="55" max="401" step="1" value="225" />
+        </div>
+
+        <div class="field">
+          <label for="message">Message</label>
+          <select id="message">
+            <option>Good morning from Jezero Crater!</option>
+            <option>Happy birthday. I am thinking of you.</option>
+            <option>The dust storm has passed. All crew safe.</option>
+            <option>Can you hear me?</option>
+          </select>
+        </div>
+
+        <p class="error" id="delay-error" role="alert"></p>
+
+        <div class="result" aria-live="polite">
+          <dl class="result-grid">
+            <div><dt>Distance</dt><dd><span data-out="km">{(km / 1e6).toFixed(1)}</span>M km</dd></div>
+            <div><dt>One way</dt><dd data-out="oneway">{formatDuration(d.oneWaySeconds)}</dd></div>
+            <div><dt>Round trip</dt><dd data-out="round">{formatDuration(d.roundTripSeconds)}</dd></div>
+          </dl>
+
+          <div class="signal-track" aria-hidden="true">
+            <div class="line"></div>
+            <div class="planet mars"></div>
+            <div class="planet earth"></div>
+            <div class="pulse"></div>
+          </div>
+          <div class="track-labels"><span>Earth</span><span data-out="progress">Ready</span><span>Mars</span></div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-accent" id="send">Send (60× speed)</button>
+          </div>
+          <p class="note">
+            Light travel time only. Real missions add relay, queuing and processing time. Distances come from an approximate orbital
+            model, accurate to roughly 0.1%.
+          </p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="prose-wrap">
+    <article class="prose">
+      <h2>Why the delay changes</h2>
+      <p>
+        Earth and Mars orbit the Sun at different speeds. At their closest, around an opposition, they can be under 60 million km
+        apart and a signal takes about 3 minutes one way. When Mars is on the far side of the Sun the distance is around 400 million
+        km and the delay exceeds 22 minutes. Near that point, the Sun can block communication altogether for about two weeks.
+      </p>
+
+      <h2>How the calculation works</h2>
+      <p class="formula">one-way time (s) = distance (km) ÷ 299,792.458</p>
+      <p>
+        Round trip is twice the one-way time. The distance for a date comes from Keplerian orbital elements published by NASA JPL for
+        approximate planetary positions (valid 1800–2050), computed in your browser.
+      </p>
+      <p>Example: at 100 million km a message takes 333.56 seconds one way and 667.13 seconds round trip.</p>
+
+      <h2>What it means for daily life</h2>
+      <p>
+        A live video call is impossible. Families would trade recorded messages, more like letters than conversations, and crews
+        would need to solve emergencies without waiting for instructions from Earth.
+      </p>
+      <p>Nothing you select is sent or stored. The message never leaves your device.</p>
+
+      <h2>Sources</h2>
+      <ul>
+        <li><a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html">NASA JPL: approximate positions of the planets</a></li>
+        <li><a href="https://science.nasa.gov/mars/facts/">NASA: Mars facts</a></li>
+      </ul>
+    </article>
+  </section>
+</Base>
+
+<script>
+  import { earthMarsDistanceKm } from '../../../lib/ephemeris';
+  import { lightDelay, formatDuration } from '../../../lib/delay';
+
+  const form = document.getElementById('delay-form') as HTMLFormElement;
+  const dateInput = document.getElementById('date') as HTMLInputElement;
+  const slider = document.getElementById('distance') as HTMLInputElement;
+  const error = document.getElementById('delay-error')!;
+  const pulse = form.querySelector<HTMLElement>('.pulse')!;
+  const sendBtn = document.getElementById('send') as HTMLButtonElement;
+  let mode: 'date' | 'custom' = 'date';
+  let current = lightDelay(earthMarsDistanceKm(new Date()));
+  let anim: Animation | null = null;
+
+  const out = (key: string, value: string) =>
+    form.querySelectorAll(`[data-out="${key}"]`).forEach((el) => (el.textContent = value));
+
+  function update() {
+    error.textContent = '';
+    let km: number;
+    if (mode === 'date') {
+      const t = Date.parse(`${dateInput.value}T12:00:00Z`);
+      if (Number.isNaN(t) || dateInput.value < '1900-01-01' || dateInput.value > '2050-12-31') {
+        error.textContent = 'Pick a date between 1900 and 2050.';
+        return;
+      }
+      km = earthMarsDistanceKm(new Date(t));
+    } else {
+      km = Number(slider.value) * 1e6;
+      out('slider', slider.value);
+    }
+    current = lightDelay(km);
+    out('km', (km / 1e6).toFixed(1));
+    out('oneway', formatDuration(current.oneWaySeconds));
+    out('round', formatDuration(current.roundTripSeconds));
+    out('progress', 'Ready');
+    anim?.cancel();
+  }
+
+  form.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.mode as 'date' | 'custom';
+      form.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      form.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== mode));
+      update();
+    }),
+  );
+  dateInput.addEventListener('input', update);
+  slider.addEventListener('input', update);
+
+  sendBtn.addEventListener('click', () => {
+    anim?.cancel();
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Accelerated 60×: one real second stands for one minute of travel.
+    const ms = reduce ? 0 : (current.oneWaySeconds / 60) * 1000;
+    const width = pulse.parentElement!.clientWidth - 50;
+    out('progress', 'In transit…');
+    anim = pulse.animate(
+      [
+        { transform: `translateX(${width}px)`, opacity: 1 },
+        { transform: 'translateX(0)', opacity: 1 },
+      ],
+      { duration: Math.max(ms, 1), easing: 'linear', fill: 'forwards' },
+    );
+    anim.onfinish = () => {
+      out('progress', `Delivered after ${formatDuration(current.oneWaySeconds)}`);
+      document.dispatchEvent(new CustomEvent('tool:complete', { detail: { tool: 'message-delay' } }));
+    };
+  });
+
+  update();
+</script>

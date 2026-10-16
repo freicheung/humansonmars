@@ -1,0 +1,113 @@
+---
+// Procedurally drawn backdrops: no third-party imagery, so no usage rights to track.
+interface Props {
+  variant: 'rise' | 'horizon' | 'span' | 'orbits';
+  seed?: number;
+}
+const { variant, seed = 7 } = Astro.props;
+
+let s = seed;
+const rand = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296);
+const stars = Array.from({ length: 260 }, () => ({
+  x: rand() * 1600,
+  y: rand() * 1000,
+  r: rand() < 0.92 ? 0.4 + rand() * 0.8 : 1.3 + rand() * 0.9,
+  o: 0.25 + rand() * 0.75,
+}));
+const id = `bd-${variant}`;
+---
+
+<div class="panel-bg" aria-hidden="true">
+  <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" style="position:absolute;inset:0;width:100%;height:100%">
+    <defs>
+      <radialGradient id={`${id}-mars`} cx="38%" cy="32%" r="75%">
+        <stop offset="0" stop-color="#f0a46a" />
+        <stop offset="0.45" stop-color="#c2531c" />
+        <stop offset="0.8" stop-color="#6b220a" />
+        <stop offset="1" stop-color="#2a0c03" />
+      </radialGradient>
+      <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
+        <stop offset="0.9" stop-color="#ff8a4d" stop-opacity="0.55" />
+        <stop offset="1" stop-color="#ff7a3d" stop-opacity="0" />
+      </radialGradient>
+      <radialGradient id={`${id}-shadow`} cx="28%" cy="18%" r="95%">
+        <stop offset="0.45" stop-color="#000" stop-opacity="0" />
+        <stop offset="1" stop-color="#000" stop-opacity="0.85" />
+      </radialGradient>
+      <radialGradient id={`${id}-earth`} cx="35%" cy="35%" r="70%">
+        <stop offset="0" stop-color="#9ad8ff" />
+        <stop offset="0.55" stop-color="#1f63ad" />
+        <stop offset="1" stop-color="#06182f" />
+      </radialGradient>
+      <radialGradient id={`${id}-sun`} cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff6d8" />
+        <stop offset="0.2" stop-color="#ffd27a" stop-opacity="0.9" />
+        <stop offset="1" stop-color="#ff9a3d" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#05040a" />
+        <stop offset="0.55" stop-color="#3a1a10" />
+        <stop offset="0.78" stop-color="#b8643a" />
+        <stop offset="1" stop-color="#d99a6c" />
+      </linearGradient>
+      <filter id={`${id}-surface`} x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="5" seed={seed} result="n" />
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.08  0 0 0 0 0.02  0 0 0 1.6 -0.55" />
+        <feComposite in2="SourceGraphic" operator="in" />
+      </filter>
+      <clipPath id={`${id}-clip`}>
+        <circle cx="1180" cy="1060" r="620" />
+      </clipPath>
+    </defs>
+
+    <rect width="1600" height="1000" fill="#000" />
+    {variant !== 'horizon' && stars.map((st) => <circle cx={st.x.toFixed(1)} cy={st.y.toFixed(1)} r={st.r.toFixed(2)} fill="#fff" opacity={st.o.toFixed(2)} />)}
+
+    {
+      variant === 'rise' && (
+        <g>
+          <circle cx="1180" cy="1060" r="660" fill={`url(#${id}-glow)`} />
+          <circle cx="1180" cy="1060" r="620" fill={`url(#${id}-mars)`} />
+          <rect x="560" y="440" width="1240" height="1240" fill="#fff" filter={`url(#${id}-surface)`} clip-path={`url(#${id}-clip)`} />
+          <circle cx="1180" cy="1060" r="620" fill={`url(#${id}-shadow)`} />
+        </g>
+      )
+    }
+
+    {
+      variant === 'horizon' && (
+        <g>
+          <rect width="1600" height="1000" fill={`url(#${id}-sky)`} />
+          {stars.filter((st) => st.y < 380).map((st) => <circle cx={st.x.toFixed(1)} cy={st.y.toFixed(1)} r={st.r.toFixed(2)} fill="#fff" opacity={(st.o * 0.7).toFixed(2)} />)}
+          <circle cx="1240" cy="640" r="7" fill="#e8f1ff" opacity="0.9" />
+          <path d="M0 760 C 220 700 420 720 640 690 S 1080 650 1300 700 S 1520 720 1600 700 V1000 H0Z" fill="#7a2f12" />
+          <path d="M0 820 C 300 780 520 810 760 790 S 1200 760 1600 800 V1000 H0Z" fill="#4e1c09" />
+          <path d="M0 900 C 260 870 600 900 900 880 S 1400 860 1600 890 V1000 H0Z" fill="#2a0f05" />
+          <rect x="0" y="690" width="1600" height="310" fill="#fff" filter={`url(#${id}-surface)`} opacity="0.6" />
+        </g>
+      )
+    }
+
+    {
+      variant === 'span' && (
+        <g>
+          <path d="M 220 760 Q 800 380 1380 600" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-dasharray="4 10" />
+          <circle cx="220" cy="760" r="64" fill={`url(#${id}-earth)`} />
+          <circle cx="1380" cy="600" r="44" fill={`url(#${id}-mars)`} />
+        </g>
+      )
+    }
+
+    {
+      variant === 'orbits' && (
+        <g>
+          <circle cx="400" cy="980" r="120" fill={`url(#${id}-sun)`} />
+          <ellipse cx="400" cy="980" rx="560" ry="300" fill="none" stroke="#9ad8ff" stroke-opacity="0.35" />
+          <ellipse cx="420" cy="980" rx="860" ry="470" fill="none" stroke="#ff7a3d" stroke-opacity="0.45" />
+          <circle cx="905" cy="850" r="10" fill={`url(#${id}-earth)`} />
+          <circle cx="1210" cy="760" r="16" fill={`url(#${id}-mars)`} />
+        </g>
+      )
+    }
+  </svg>
+</div>
