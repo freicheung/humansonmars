@@ -10,8 +10,10 @@ interface Props {
   /** Optional concept image (src/assets/concept/*). Always labelled as concept art. */
   image?: ImageMetadata;
   imageAlt?: string;
+  /** object-position for the image, so the subject stays in frame on narrow screens. */
+  focus?: string;
 }
-const { variant, seed = 7, image, imageAlt = '' } = Astro.props;
+const { variant, seed = 7, image, imageAlt = '', focus = 'center' } = Astro.props;
 
 let s = seed;
 const rand = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296);
@@ -31,7 +33,7 @@ const skyStars = variant === 'horizon' || variant === 'habitat' ? stars.filter((
   {
     image ? (
       <>
-        <Image src={image} alt={imageAlt} class="concept-img" widths={[800, 1400, 2200]} sizes="100vw" loading="eager" />
+        <Image src={image} alt={imageAlt} class="concept-img" style={`object-position:${focus}`} widths={[800, 1400, 2200]} sizes="100vw" loading="eager" />
         <span class="concept-label">Concept art · AI-generated</span>
       </>
     ) : (

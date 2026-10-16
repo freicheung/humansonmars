@@ -693,3 +693,6 @@ html.js .hero-title span + span {
     animation: none;
   }
 }
+@media (max-width: 640px) {
+  .scroll-cue { display: none; }
+}
