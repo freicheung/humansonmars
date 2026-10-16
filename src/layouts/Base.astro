@@ -19,6 +19,7 @@ const fullTitle = title === 'Humans on Mars' ? title : `${title} | Humans on Mar
 <html lang="en" data-mode={mode}>
   <head>
     <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -40,5 +41,33 @@ const fullTitle = title === 'Humans on Mars' ? title : `${title} | Humans on Mar
       <slot />
     </main>
     <Footer />
+    <script>
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const header = document.querySelector('.site-header');
+      const layers = [...document.querySelectorAll<SVGElement>('.panel-bg .parallax')];
+      let ticking = false;
+      function onScroll() {
+        header?.classList.toggle('scrolled', window.scrollY > 40);
+        if (!reduce) {
+          for (const el of layers) {
+            const rect = el.parentElement!.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > innerHeight) continue;
+            el.style.transform = `translateY(${(rect.top * -0.12).toFixed(1)}px)`;
+          }
+        }
+        ticking = false;
+      }
+      window.addEventListener('scroll', () => {
+        if (!ticking) requestAnimationFrame(onScroll);
+        ticking = true;
+      }, { passive: true });
+      onScroll();
+
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+        { threshold: 0.15 },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>
