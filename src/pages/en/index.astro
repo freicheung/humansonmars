@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SpaceBackdrop from '../../components/SpaceBackdrop.astro';
+import { concept } from '../../lib/concept';
 import { earthMarsDistanceKm } from '../../lib/ephemeris';
 import { lightDelay, formatDuration } from '../../lib/delay';
 
@@ -15,11 +16,11 @@ const oneWay = lightDelay(km).oneWaySeconds;
   description="What would everyday life on Mars feel like? Interactive tools and sourced explainers on time, gravity, distance and living on another world."
   mode="immersive"
 >
-  <section class="panel" aria-labelledby="hero-title">
-    <SpaceBackdrop variant="rise" seed={11} />
+  <section class="panel dark-zone" aria-labelledby="hero-title">
+    <SpaceBackdrop variant="rise" seed={11} image={concept('hero-mars-rise')} focus="72% 50%" imageAlt="Mars rising over the horizon of space" />
     <div class="panel-content">
       <p class="eyebrow">A guide to life on another world</p>
-      <h1 class="display" id="hero-title">Humans<br />on Mars</h1>
+      <h1 class="display hero-title" id="hero-title"><span>Humans</span><span>on Mars</span></h1>
       <p class="lede">
         Mars is <strong><span data-live="km-short">{(km / 1e6).toFixed(1)}</span> million km</strong> from Earth right now. What would
         it take, and what would it feel like, to live there?
@@ -29,10 +30,10 @@ const oneWay = lightDelay(km).oneWaySeconds;
     <span class="scroll-cue">Scroll</span>
   </section>
 
-  <section class="panel" aria-labelledby="delay-title">
-    <SpaceBackdrop variant="span" seed={23} />
-    <div class="panel-content">
-      <p class="eyebrow">Calling home</p>
+  <section class="panel dark-zone" aria-labelledby="delay-title">
+    <SpaceBackdrop variant="span" seed={23} image={concept('calling-home')} focus="85% 50%" imageAlt="A suited figure on Mars looking up at Earth" />
+    <div class="panel-content reveal">
+      <p class="index-mark">01 · Calling home</p>
       <p class="figure-live" data-live="delay">{formatDuration(oneWay)}</p>
       <h2 class="display-sm" id="delay-title">For a message to reach Earth today</h2>
       <p class="lede">Light is the speed limit. A conversation with family becomes an exchange of letters.</p>
@@ -40,10 +41,10 @@ const oneWay = lightDelay(km).oneWaySeconds;
     </div>
   </section>
 
-  <section class="panel" aria-labelledby="gravity-title">
-    <SpaceBackdrop variant="horizon" seed={5} />
-    <div class="panel-content">
-      <p class="eyebrow">Gravity</p>
+  <section class="panel dark-zone" aria-labelledby="gravity-title">
+    <SpaceBackdrop variant="horizon" seed={5} image={concept('gravity-horizon')} focus="85% 50%" imageAlt="Explorers crossing Martian dunes at sunset" />
+    <div class="panel-content reveal">
+      <p class="index-mark">02 · Gravity</p>
       <p class="figure-live">38<span class="figure-unit">%</span></p>
       <h2 class="display-sm" id="gravity-title">Of the pull you feel on Earth</h2>
       <p class="lede">Your mass stays the same. Every step, lift and fall would feel different.</p>
@@ -51,10 +52,10 @@ const oneWay = lightDelay(km).oneWaySeconds;
     </div>
   </section>
 
-  <section class="panel" aria-labelledby="age-title">
-    <SpaceBackdrop variant="orbits" seed={41} />
-    <div class="panel-content">
-      <p class="eyebrow">Time</p>
+  <section class="panel dark-zone" aria-labelledby="age-title">
+    <SpaceBackdrop variant="orbits" seed={41} image={concept('martian-year')} imageAlt="Martian dusk sky with two small moons" />
+    <div class="panel-content reveal">
+      <p class="index-mark">03 · Time</p>
       <p class="figure-live">687<span class="figure-unit">Earth days</span></p>
       <h2 class="display-sm" id="age-title">In one Martian year</h2>
       <p class="lede">Birthdays come roughly every 23 months. How old would you be?</p>
@@ -62,9 +63,22 @@ const oneWay = lightDelay(km).oneWaySeconds;
     </div>
   </section>
 
-  <section id="tools" class="prose-wrap" aria-labelledby="tools-title">
-    <div style="max-width:var(--max);margin:0 auto">
-      <p class="eyebrow">Start here</p>
+  <section class="panel dark-zone" aria-labelledby="home-title">
+    <SpaceBackdrop variant="habitat" seed={17} image={concept('habitat-dusk')} focus="80% 50%" imageAlt="Sealed habitat domes glowing at dusk on Mars" />
+    <div class="panel-content reveal">
+      <p class="index-mark">04 · Living there</p>
+      <h2 class="display-sm" id="home-title">Every breath, sip and meal would be engineered</h2>
+      <p class="lede">
+        Air, water, food and shelter from radiation would all have to be made, recycled or dug up on site. We explain what has been
+        demonstrated, what is only planned, and what nobody knows yet.
+      </p>
+      <p class="label-status" style="margin:0">Scenario illustration</p>
+    </div>
+  </section>
+
+  <section id="tools" class="prose-wrap dark-zone" aria-labelledby="tools-title">
+    <div style="max-width:var(--max);margin:0 auto" class="reveal">
+      <p class="index-mark">Start here</p>
       <h2 class="display-sm" id="tools-title">Three ways to imagine Mars</h2>
       <div class="tiles">
         <a class="tile" href="/en/tools/mars-gravity/">
@@ -89,9 +103,9 @@ const oneWay = lightDelay(km).oneWaySeconds;
     </div>
   </section>
 
-  <section class="prose-wrap" aria-labelledby="method-title" style="border-top:1px solid var(--line)">
-    <div class="prose">
-      <p class="eyebrow">How we write</p>
+  <section class="prose-wrap" aria-labelledby="method-title">
+    <div class="prose reveal">
+      <p class="index-mark">How we write</p>
       <h2 id="method-title" style="margin-top:0">Facts, plans, models and scenes</h2>
       <p>
         Every page separates four things: <strong>facts</strong> backed by evidence, <strong>plans</strong> attributed to whoever

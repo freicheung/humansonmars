@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { concept } from '../../../lib/concept';
 import { MARS_SURFACE_GRAVITY, STANDARD_GRAVITY } from '../../../lib/constants';
 ---
 
@@ -9,11 +10,11 @@ import { MARS_SURFACE_GRAVITY, STANDARD_GRAVITY } from '../../../lib/constants';
   description="Enter your mass in kg or lb to see the gravitational force on Mars in newtons and what an Earth scale would read. Your mass does not change."
   mode="immersive"
 >
-  <section class="panel tool-hero" aria-labelledby="tool-title">
-    <SpaceBackdrop variant="horizon" seed={9} />
+  <section class="panel dark-zone tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="horizon" seed={9} image={concept('gravity-horizon')} focus="85% 50%" imageAlt="Explorers crossing Martian dunes at sunset" />
     <div class="tool-grid">
       <div>
-        <p class="eyebrow">Tool 01 · Gravity</p>
+        <p class="index-mark">Tool 01 · Gravity</p>
         <h1 class="display-sm" id="tool-title">What would you weigh on Mars?</h1>
         <p class="lede">
           Mars pulls on you with about 38% of Earth's gravity. Your body keeps exactly the same mass; only the force changes.

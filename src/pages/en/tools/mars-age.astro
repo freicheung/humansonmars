@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { concept } from '../../../lib/concept';
 import { MARS_YEAR_EARTH_DAYS, SOL_SECONDS } from '../../../lib/constants';
 ---
 
@@ -9,11 +10,11 @@ import { MARS_YEAR_EARTH_DAYS, SOL_SECONDS } from '../../../lib/constants';
   description="Enter your birth date to see your age in Martian years and sols, and the date of your next Mars birthday."
   mode="immersive"
 >
-  <section class="panel tool-hero" aria-labelledby="tool-title">
-    <SpaceBackdrop variant="orbits" seed={43} />
+  <section class="panel dark-zone tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="orbits" seed={43} image={concept('martian-year')} imageAlt="Martian dusk sky with two small moons" />
     <div class="tool-grid">
       <div>
-        <p class="eyebrow">Tool 03 · Time</p>
+        <p class="index-mark">Tool 03 · Time</p>
         <h1 class="display-sm" id="tool-title">How old are you on Mars?</h1>
         <p class="lede">
           Mars takes 687 Earth days to circle the Sun. Count your life in Martian years and you get younger, with fewer, rarer

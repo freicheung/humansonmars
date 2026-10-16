@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import SpaceBackdrop from '../../../components/SpaceBackdrop.astro';
+import { concept } from '../../../lib/concept';
 import { earthMarsDistanceKm } from '../../../lib/ephemeris';
 import { lightDelay, formatDuration } from '../../../lib/delay';
 
@@ -15,11 +16,11 @@ const today = now.toISOString().slice(0, 10);
   description="See today's approximate Earth–Mars distance and how long a radio message takes one way and round trip, or pick any date or distance."
   mode="immersive"
 >
-  <section class="panel tool-hero" aria-labelledby="tool-title">
-    <SpaceBackdrop variant="span" seed={31} />
+  <section class="panel dark-zone tool-hero" aria-labelledby="tool-title">
+    <SpaceBackdrop variant="span" seed={31} image={concept('calling-home')} focus="85% 50%" imageAlt="A suited figure on Mars looking up at Earth" />
     <div class="tool-grid">
       <div>
-        <p class="eyebrow">Tool 02 · Communication</p>
+        <p class="index-mark">Tool 02 · Communication</p>
         <h1 class="display-sm" id="tool-title">Send a message to Earth</h1>
         <p class="lede">
           Radio travels at the speed of light, yet a hello from Mars takes minutes to arrive. The wait changes every day as both
